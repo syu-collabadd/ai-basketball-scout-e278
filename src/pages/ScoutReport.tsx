@@ -1,37 +1,35 @@
 import { useRef, useState } from 'react';
 import {
-  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer,
-  Tooltip
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip
 } from 'recharts';
-import { FileText, Download, Loader2, Zap, Shield, Target, Activity, TrendingUp } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import InsightCard from '../components/InsightCard';
 import { aiInsights, lineups, teams, gameResult, players } from '../data/mockData';
-import clsx from 'clsx';
 
 const radarData = [
-  { subject: 'Offense', LAK: 72, RIV: 84 },
-  { subject: 'Defense', LAK: 68, RIV: 76 },
+  { subject: 'Offense',    LAK: 72, RIV: 84 },
+  { subject: 'Defense',    LAK: 68, RIV: 76 },
   { subject: 'Rebounding', LAK: 62, RIV: 71 },
   { subject: 'Transition', LAK: 58, RIV: 82 },
-  { subject: 'Three-Point', LAK: 65, RIV: 74 },
+  { subject: '3-Point',    LAK: 65, RIV: 74 },
   { subject: 'Playmaking', LAK: 74, RIV: 78 },
 ];
 
 const tacticalActions = [
   {
-    title: 'Counter Rivers\' Transition Push',
     priority: 'P1',
-    color: 'red',
+    color: 'var(--red)',
+    title: 'Counter Rivers\' Transition Push',
     steps: [
       'Assign designated sprint-back player after every shot attempt',
       'Force Rivers wide off live-ball rebounds — deny the middle lane',
-      'Set early back-line defense before the ball crosses half-court',
+      'Set early back-line defense before ball crosses half-court',
     ],
   },
   {
-    title: 'Attack Pick-and-Roll with Blitz Coverage',
     priority: 'P2',
-    color: 'amber',
+    color: 'var(--amber)',
+    title: 'Attack Pick-and-Roll with Blitz Coverage',
     steps: [
       'Replace drop coverage with blitz on Rivers / Grant ball screens',
       'Rotate Webb to ICE position early to force sideline action',
@@ -39,9 +37,9 @@ const tacticalActions = [
     ],
   },
   {
-    title: 'Maximize Webb–Hayes Two-Man Game',
     priority: 'P3',
-    color: 'emerald',
+    color: 'var(--green)',
+    title: 'Maximize Webb–Hayes Two-Man Game',
     steps: [
       'Run HORNS action to initiate Webb–Hayes PnR in first 8 seconds',
       'Webb reads middle vs. roll based on Riverside\'s coverage shell',
@@ -58,22 +56,14 @@ export default function ScoutReport() {
     setExporting(true);
     const { default: html2canvas } = await import('html2canvas');
     const { jsPDF } = await import('jspdf');
-
     const el = reportRef.current;
     if (!el) { setExporting(false); return; }
-
     try {
-      const canvas = await html2canvas(el, {
-        backgroundColor: '#0a0c10',
-        scale: 1.5,
-        useCORS: true,
-        logging: false,
-      });
-
+      const canvas = await html2canvas(el, { backgroundColor: '#0c0d0f', scale: 1.5, useCORS: true, logging: false });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [canvas.width / 1.5, canvas.height / 1.5] });
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 1.5, canvas.height / 1.5);
-      pdf.save(`ScoutReport-${teams.home.abbreviation}-vs-${teams.away.abbreviation}-${gameResult.date}.pdf`);
+      pdf.save(`ScoutReport-${teams.home.abbreviation}v${teams.away.abbreviation}-${gameResult.date}.pdf`);
     } finally {
       setExporting(false);
     }
@@ -85,69 +75,74 @@ export default function ScoutReport() {
   return (
     <div className="min-h-full">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#0a0c10]/90 backdrop-blur border-b border-[#1a2035] px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <FileText size={16} className="text-slate-400" />
-          <h1 className="text-sm font-semibold text-slate-100">Scouting Report</h1>
-        </div>
+      <header
+        className="sticky top-0 z-10 border-b px-6 h-14 flex items-center justify-between"
+        style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}
+      >
+        <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Scouting Report</span>
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500 disabled:opacity-60 transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded text-xs font-bold tracking-wide transition-opacity disabled:opacity-50 hover:opacity-80"
+          style={{ background: 'var(--amber)', color: '#000' }}
         >
-          {exporting ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+          {exporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
           {exporting ? 'Exporting...' : 'Export PDF'}
         </button>
       </header>
 
-      <div ref={reportRef} className="p-6 max-w-5xl mx-auto flex flex-col gap-6">
+      <div ref={reportRef} className="p-6 max-w-5xl mx-auto flex flex-col gap-8">
 
-        {/* Report Header */}
-        <div className="bg-gradient-to-br from-[#0d1017] to-[#111827] border border-[#1a2035] rounded-2xl p-6">
-          <div className="flex items-start justify-between gap-4">
+        {/* Report masthead */}
+        <div
+          className="border rounded p-6"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)', borderTop: '2px solid var(--amber)' }}
+        >
+          <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Zap size={14} className="text-blue-400" />
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">AI Scouting Report</span>
-              </div>
-              <h2 className="text-xl font-black text-slate-100 tracking-tight">
-                {teams.home.name} <span className="text-slate-600 font-light">vs</span> {teams.away.name}
-              </h2>
-              <p className="text-sm text-slate-500 mt-1">{gameResult.date} · {gameResult.venue} · {gameResult.attendance.toLocaleString()} attendance</p>
+              <p className="text-[9px] font-black tracking-widest uppercase mb-2" style={{ color: 'var(--amber)' }}>
+                AI Scouting Report · Confidential
+              </p>
+              <h1 className="text-2xl font-black leading-tight" style={{ color: 'var(--text)' }}>
+                {teams.home.name}
+                <span className="font-light mx-2" style={{ color: 'var(--faint)' }}>vs</span>
+                {teams.away.name}
+              </h1>
+              <p className="text-xs mt-1" style={{ color: 'var(--faint)' }}>
+                {gameResult.date} · {gameResult.venue} · {gameResult.attendance.toLocaleString()} attendance
+              </p>
             </div>
-            <div className="text-right flex-shrink-0">
-              <div className="text-3xl font-black text-slate-100">
-                <span className="text-blue-300">{gameResult.homeScore}</span>
-                <span className="text-slate-600 mx-2 font-light">–</span>
-                <span className="text-orange-300">{gameResult.awayScore}</span>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Final</p>
+            <div className="text-right">
+              <p className="text-5xl font-black tabular leading-none" style={{ color: 'var(--text)' }}>
+                {gameResult.homeScore}
+                <span className="text-2xl font-light mx-2" style={{ color: 'var(--faint)' }}>—</span>
+                <span style={{ color: 'var(--amber)' }}>{gameResult.awayScore}</span>
+              </p>
+              <p className="text-[10px] font-bold tracking-widest uppercase mt-1" style={{ color: 'var(--faint)' }}>FINAL</p>
             </div>
           </div>
 
-          <div className="flex gap-3 mt-4 flex-wrap">
-            <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg">
-              <Shield size={12} className="text-red-400" />
-              <span className="text-xs text-red-400 font-medium">{criticalCount} Critical Issues</span>
+          <div className="flex gap-6 mt-5 pt-4 border-t flex-wrap" style={{ borderColor: 'var(--border)' }}>
+            <div>
+              <p className="text-2xl font-black tabular" style={{ color: 'var(--red)' }}>{criticalCount}</p>
+              <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: 'var(--faint)' }}>Critical Issues</p>
             </div>
-            <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg">
-              <TrendingUp size={12} className="text-emerald-400" />
-              <span className="text-xs text-emerald-400 font-medium">{positiveCount} Advantages Identified</span>
+            <div>
+              <p className="text-2xl font-black tabular" style={{ color: 'var(--green)' }}>{positiveCount}</p>
+              <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: 'var(--faint)' }}>Edges Found</p>
             </div>
-            <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-lg">
-              <Activity size={12} className="text-blue-400" />
-              <span className="text-xs text-blue-400 font-medium">{players.length} Players Analyzed</span>
+            <div>
+              <p className="text-2xl font-black tabular" style={{ color: 'var(--text)' }}>{players.length}</p>
+              <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: 'var(--faint)' }}>Players Analyzed</p>
             </div>
           </div>
         </div>
 
-        {/* All AI Insights */}
+        {/* Insights */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <Zap size={15} className="text-blue-400" />
-            <h2 className="text-sm font-semibold text-slate-200">AI Coaching Insights</h2>
-            <span className="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded-full">{aiInsights.length} insights</span>
-          </div>
+          <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--faint)' }}>
+            AI Insights <span className="ml-2" style={{ color: 'var(--amber)' }}>{aiInsights.length}</span>
+          </p>
           <div className="flex flex-col gap-3">
             {aiInsights.map((insight, i) => (
               <InsightCard key={i} insight={insight} />
@@ -155,98 +150,86 @@ export default function ScoutReport() {
           </div>
         </div>
 
-        {/* Team Radar */}
+        {/* Radar + Lineup */}
         <div className="grid lg:grid-cols-2 gap-5">
-          <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-            <h3 className="text-sm font-semibold text-slate-200 mb-4">Team Profile Comparison</h3>
+          {/* Radar */}
+          <div className="border rounded p-5" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--faint)' }}>Team Profile</p>
             <ResponsiveContainer width="100%" height={240}>
               <RadarChart data={radarData}>
-                <PolarGrid stroke="#1a2035" />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#64748b' }} />
+                <PolarGrid stroke="var(--border)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: 'var(--faint)' }} />
                 <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar name="Lakeside" dataKey="LAK" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} strokeWidth={2} />
-                <Radar name="Riverside" dataKey="RIV" stroke="#f97316" fill="#f97316" fillOpacity={0.15} strokeWidth={2} />
-                <Tooltip
-                  contentStyle={{ background: '#0d1017', border: '1px solid #1a2035', borderRadius: 8, fontSize: 12 }}
-                />
+                <Radar name="Lakeside" dataKey="LAK" stroke="var(--muted)" fill="var(--muted)" fillOpacity={0.1} strokeWidth={1.5} />
+                <Radar name="Riverside" dataKey="RIV" stroke="var(--amber)" fill="var(--amber)" fillOpacity={0.1} strokeWidth={1.5} />
+                <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12, color: 'var(--text)' }} />
               </RadarChart>
             </ResponsiveContainer>
-            <div className="flex gap-4 justify-center">
-              <div className="flex items-center gap-1.5"><div className="w-2.5 h-0.5 bg-blue-500 rounded" /><span className="text-xs text-slate-500">Lakeside</span></div>
-              <div className="flex items-center gap-1.5"><div className="w-2.5 h-0.5 bg-orange-500 rounded" /><span className="text-xs text-slate-500">Riverside</span></div>
+            <div className="flex gap-4 mt-1">
+              <div className="flex items-center gap-1.5"><div className="w-3 h-0.5 rounded" style={{ background: 'var(--muted)' }} /><span className="text-[11px]" style={{ color: 'var(--faint)' }}>Lakeside</span></div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-0.5 rounded" style={{ background: 'var(--amber)' }} /><span className="text-[11px]" style={{ color: 'var(--faint)' }}>Riverside</span></div>
             </div>
           </div>
 
-          {/* Lineup Efficiency */}
-          <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Activity size={14} className="text-slate-400" />
-              <h3 className="text-sm font-semibold text-slate-200">Lineup Efficiency (LAK)</h3>
-            </div>
-            <div className="flex flex-col gap-2">
+          {/* Lineup efficiency */}
+          <div className="border rounded p-5" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--faint)' }}>
+              Lineup Net Rating · LAK
+            </p>
+            <div className="flex flex-col gap-3">
               {lineups.map((lineup, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] text-slate-500 truncate">{lineup.players.join(' · ')}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="flex-1 h-1.5 bg-[#1a2035] rounded-full overflow-hidden">
+                    <p className="text-[10px] truncate mb-1" style={{ color: 'var(--faint)' }}>{lineup.players.join(' · ')}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--surface2)' }}>
                         <div
                           className="h-full rounded-full"
                           style={{
                             width: `${Math.max(0, Math.min(100, (lineup.netRating + 15) * 4))}%`,
-                            background: lineup.netRating > 0 ? '#10b981' : '#ef4444',
+                            background: lineup.netRating > 0 ? 'var(--green)' : 'var(--red)',
                           }}
                         />
                       </div>
-                      <span className={clsx('text-xs font-bold w-12 text-right', lineup.netRating > 0 ? 'text-emerald-400' : 'text-red-400')}>
+                      <span
+                        className="text-xs font-black tabular w-10 text-right flex-shrink-0"
+                        style={{ color: lineup.netRating > 0 ? 'var(--green)' : 'var(--red)' }}
+                      >
                         {lineup.netRating > 0 ? '+' : ''}{lineup.netRating}
                       </span>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0 w-16">
-                    <p className="text-[10px] text-slate-500">{lineup.minutes} min</p>
-                  </div>
+                  <span className="text-[10px] w-12 text-right flex-shrink-0" style={{ color: 'var(--faint)' }}>
+                    {lineup.minutes}m
+                  </span>
                 </div>
               ))}
             </div>
-            <p className="text-[10px] text-slate-600 mt-3">Net Rating per 100 possessions</p>
+            <p className="text-[9px] mt-3" style={{ color: 'var(--faint)', opacity: 0.6 }}>Net rating per 100 possessions</p>
           </div>
         </div>
 
         {/* Tactical Action Plan */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <Target size={15} className="text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-200">AI Tactical Action Plan</h2>
-            <span className="text-xs text-slate-500">· Next game preparation</span>
-          </div>
+          <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--faint)' }}>
+            Tactical Action Plan · Next Game
+          </p>
           <div className="flex flex-col gap-3">
             {tacticalActions.map((action, i) => (
               <div
                 key={i}
-                className={clsx(
-                  'border rounded-xl p-4',
-                  action.color === 'red' && 'bg-red-950/10 border-red-500/20',
-                  action.color === 'amber' && 'bg-amber-950/10 border-amber-500/20',
-                  action.color === 'emerald' && 'bg-emerald-950/10 border-emerald-500/20',
-                )}
+                className="border rounded p-4"
+                style={{ background: 'var(--surface)', borderColor: 'var(--border)', borderLeft: `3px solid ${action.color}` }}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={clsx(
-                    'text-[10px] font-black px-2 py-1 rounded',
-                    action.color === 'red' && 'bg-red-500/20 text-red-400',
-                    action.color === 'amber' && 'bg-amber-500/20 text-amber-400',
-                    action.color === 'emerald' && 'bg-emerald-500/20 text-emerald-400',
-                  )}>
-                    {action.priority}
-                  </span>
-                  <h3 className="text-sm font-semibold text-slate-100">{action.title}</h3>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-[9px] font-black tracking-widest" style={{ color: action.color }}>{action.priority}</span>
+                  <h3 className="text-sm font-bold" style={{ color: 'var(--text)' }}>{action.title}</h3>
                 </div>
-                <ul className="flex flex-col gap-2">
+                <ul className="flex flex-col gap-1.5">
                   {action.steps.map((step, j) => (
-                    <li key={j} className="flex items-start gap-2">
-                      <span className="text-slate-600 text-xs mt-0.5 flex-shrink-0">→</span>
-                      <span className="text-xs text-slate-400 leading-relaxed">{step}</span>
+                    <li key={j} className="flex items-start gap-2.5">
+                      <span className="text-[10px] flex-shrink-0 mt-0.5" style={{ color: 'var(--faint)' }}>→</span>
+                      <span className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>{step}</span>
                     </li>
                   ))}
                 </ul>
@@ -255,48 +238,34 @@ export default function ScoutReport() {
           </div>
         </div>
 
-        {/* Key Matchups */}
+        {/* Matchups */}
         <div>
-          <h2 className="text-sm font-semibold text-slate-200 mb-4">Key Matchup Analysis</h2>
+          <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--faint)' }}>Key Matchups</p>
           <div className="grid lg:grid-cols-2 gap-3">
             {[
-              { lak: players[1], riv: players[4], focus: 'Battle of the point guards — Rivers\' pace vs. Cole\'s half-court craft. Cole must deny middle lane on Rivers\' drives and force him into a right-hand floater. Rivers is 3-for-12 on contested floaters this season.' },
-              { lak: players[0], riv: players[3], focus: 'Wing matchup of the game. Webb has a 2.4-inch height advantage; Grant has superior lateral quickness. Switching will expose Grant on Webb\'s post-ups. Recommend keeping Grant on Webb in ICE position.' },
-            ].map(({ lak, riv, focus }, i) => (
-              <div key={i} className="bg-[#0d1017] border border-[#1a2035] rounded-xl p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-7 h-7 rounded-full text-[10px] font-bold flex items-center justify-center"
-                      style={{ background: `${lak.accentColor}22`, color: lak.accentColor, border: `1px solid ${lak.accentColor}44` }}>
-                      {lak.photoInitials}
-                    </div>
-                    <span className="text-xs font-semibold text-slate-200">{lak.name}</span>
-                  </div>
-                  <span className="text-[10px] text-slate-600 bg-[#1a2035] px-1.5 py-0.5 rounded">vs</span>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-7 h-7 rounded-full text-[10px] font-bold flex items-center justify-center"
-                      style={{ background: `${riv.accentColor}22`, color: riv.accentColor, border: `1px solid ${riv.accentColor}44` }}>
-                      {riv.photoInitials}
-                    </div>
-                    <span className="text-xs font-semibold text-slate-200">{riv.name}</span>
-                  </div>
+              { lak: players[1], riv: players[4], analysis: 'Battle of point guards. Rivers\' pace vs. Cole\'s half-court craft. Cole must deny the middle on drives and force Rivers into a right-hand floater. Rivers is 3-for-12 on contested floaters this season.' },
+              { lak: players[0], riv: players[3], analysis: 'Wing matchup of the game. Webb has a 2.4-inch height edge; Grant has superior lateral quickness. Switching exposes Grant on Webb post-ups. Recommend ICE positioning on Grant.' },
+            ].map(({ lak, riv, analysis }, i) => (
+              <div key={i} className="border rounded p-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs font-black" style={{ color: 'var(--text)' }}>{lak.name}</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-sm" style={{ background: 'var(--surface2)', color: 'var(--faint)' }}>vs</span>
+                  <span className="text-xs font-black" style={{ color: 'var(--amber)' }}>{riv.name}</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">{focus}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--muted)' }}>{analysis}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Report footer */}
-        <div className="border-t border-[#1a2035] pt-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Zap size={12} className="text-blue-400" />
-            <span className="text-xs text-slate-600">Generated by ScoutAI · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-          </div>
-          <span className="text-xs text-slate-600">Confidential — Internal Use Only</span>
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: 'var(--faint)', opacity: 0.5 }}>
+            Generated by ScoutAI · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          </p>
+          <p className="text-[10px]" style={{ color: 'var(--faint)', opacity: 0.5 }}>Confidential — Internal Use Only</p>
         </div>
       </div>
     </div>
   );
 }
-

@@ -3,10 +3,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell
 } from 'recharts';
-import { ChevronLeft, TrendingUp, TrendingDown, Minus, Target, Shield, Zap } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { players, performanceTrend, shotZoneData } from '../data/mockData';
-import clsx from 'clsx';
-
 
 export default function PlayerDetail() {
   const { id } = useParams();
@@ -16,240 +14,210 @@ export default function PlayerDetail() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <p className="text-slate-400 mb-2">Player not found</p>
-          <Link to="/players" className="text-blue-400 text-sm hover:underline">Back to players</Link>
+          <p className="mb-2" style={{ color: 'var(--muted)' }}>Player not found</p>
+          <Link to="/players" className="text-sm underline" style={{ color: 'var(--amber)' }}>Back to players</Link>
         </div>
       </div>
     );
   }
 
-  const trendIcon = player.trend === 'up'
-    ? <TrendingUp size={14} className="text-emerald-400" />
-    : player.trend === 'down'
-    ? <TrendingDown size={14} className="text-red-400" />
-    : <Minus size={14} className="text-slate-500" />;
+  const isHome = player.team === 'LAK';
 
   return (
     <div className="min-h-full">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#0a0c10]/90 backdrop-blur border-b border-[#1a2035] px-6 h-14 flex items-center gap-3">
-        <Link to="/players" className="text-slate-500 hover:text-slate-300 transition-colors">
+      <header
+        className="sticky top-0 z-10 border-b px-6 h-14 flex items-center gap-4"
+        style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}
+      >
+        <Link to="/players" className="hover:opacity-70 transition-opacity" style={{ color: 'var(--faint)' }}>
           <ChevronLeft size={18} />
         </Link>
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-          style={{ background: `${player.accentColor}22`, color: player.accentColor, border: `1px solid ${player.accentColor}44` }}
-        >
-          {player.photoInitials}
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>{player.name}</span>
+          <span className="text-[11px]" style={{ color: 'var(--faint)' }}>#{player.number} · {player.position} · {player.team}</span>
         </div>
-        <h1 className="text-sm font-semibold text-slate-100">{player.name}</h1>
-        <span className="text-xs text-slate-500">#{player.number} · {player.position}</span>
+        <div className="ml-auto">
+          <span
+            className="text-xs font-black"
+            style={{ color: player.trend === 'up' ? 'var(--green)' : player.trend === 'down' ? 'var(--red)' : 'var(--faint)' }}
+          >
+            {player.trend === 'up' ? '▲ Hot' : player.trend === 'down' ? '▼ Cold' : '— Avg'}
+          </span>
+        </div>
       </header>
 
-      <div className="p-6 max-w-5xl mx-auto flex flex-col gap-5">
-        {/* Player Hero */}
-        <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-          <div className="flex items-start gap-5">
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black flex-shrink-0"
-              style={{ background: `${player.accentColor}22`, color: player.accentColor, border: `1px solid ${player.accentColor}44` }}
-            >
-              {player.photoInitials}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-lg font-bold text-slate-100">{player.name}</h2>
-                {trendIcon}
-                <span className={clsx('text-xs font-medium px-2 py-0.5 rounded-full',
-                  player.trend === 'up' && 'bg-emerald-500/20 text-emerald-400',
-                  player.trend === 'down' && 'bg-red-500/20 text-red-400',
-                  player.trend === 'stable' && 'bg-slate-500/20 text-slate-400',
-                )}>
-                  {player.trend === 'up' ? 'Hot Streak' : player.trend === 'down' ? 'Cold Streak' : 'Consistent'}
-                </span>
-              </div>
-              <p className="text-sm text-slate-500 mt-0.5">
-                {player.position} · {player.height} · {player.weight} · {player.team}
+      <div className="p-6 max-w-5xl mx-auto flex flex-col gap-6">
+
+        {/* Hero stats bar */}
+        <div
+          className="border rounded p-5"
+          style={{ background: 'var(--surface)', borderColor: 'var(--border)', borderLeft: `3px solid ${isHome ? '#9098a9' : 'var(--amber)'}` }}
+        >
+          <div className="flex items-start gap-6 flex-wrap">
+            <div className="flex-shrink-0">
+              <p className="text-[9px] font-bold tracking-widest uppercase mb-1" style={{ color: 'var(--faint)' }}>
+                {player.position} · {player.height} · {player.weight}
               </p>
-              <div className="flex flex-wrap gap-3 mt-3">
-                {[
-                  { label: 'PPG', val: player.stats.ppg },
-                  { label: 'RPG', val: player.stats.rpg },
-                  { label: 'APG', val: player.stats.apg },
-                  { label: 'SPG', val: player.stats.spg },
-                  { label: 'BPG', val: player.stats.bpg },
-                  { label: '+/-', val: `+${player.stats.plusMinus}` },
-                ].map(s => (
-                  <div key={s.label} className="text-center">
-                    <p className="text-base font-bold text-slate-100">{s.val}</p>
-                    <p className="text-[10px] text-slate-500">{s.label}</p>
-                  </div>
-                ))}
-              </div>
+              <p className="text-2xl font-black" style={{ color: 'var(--text)' }}>{player.name}</p>
+            </div>
+            <div className="flex gap-6 flex-wrap">
+              {[
+                { label: 'PPG', val: player.stats.ppg },
+                { label: 'RPG', val: player.stats.rpg },
+                { label: 'APG', val: player.stats.apg },
+                { label: 'SPG', val: player.stats.spg },
+                { label: 'BPG', val: player.stats.bpg },
+                { label: '+/-', val: `+${player.stats.plusMinus}` },
+              ].map(s => (
+                <div key={s.label}>
+                  <p className="text-xl font-black tabular leading-none" style={{ color: 'var(--text)' }}>{s.val}</p>
+                  <p className="text-[9px] font-bold tracking-widest uppercase mt-1" style={{ color: 'var(--faint)' }}>{s.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Shooting Stats */}
+        {/* Shooting row */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'FG%', val: `${player.stats.fg}%`, sub: 'Field Goal' },
-            { label: '3P%', val: `${player.stats.fg3}%`, sub: 'Three-Point' },
-            { label: 'FT%', val: `${player.stats.ft}%`, sub: 'Free Throw' },
+            { label: 'Field Goal %', val: player.stats.fg },
+            { label: 'Three-Point %', val: player.stats.fg3 },
+            { label: 'Free Throw %', val: player.stats.ft },
           ].map(s => (
-            <div key={s.label} className="bg-[#0d1017] border border-[#1a2035] rounded-xl p-4 text-center">
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">{s.sub}</p>
-              <p className="text-2xl font-bold text-slate-100">{s.val}</p>
-              <div className="mt-2 h-1 bg-[#1a2035] rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${parseFloat(s.val)}%`, background: player.accentColor }}
-                />
+            <div key={s.label} className="border rounded p-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+              <p className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--faint)' }}>{s.label}</p>
+              <p className="text-3xl font-black tabular" style={{ color: 'var(--text)' }}>{s.val}<span className="text-sm font-bold ml-0.5" style={{ color: 'var(--faint)' }}>%</span></p>
+              <div className="mt-2.5 h-1 rounded-full overflow-hidden" style={{ background: 'var(--surface2)' }}>
+                <div className="h-full rounded-full" style={{ width: `${s.val}%`, background: isHome ? 'var(--muted)' : 'var(--amber)' }} />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Charts Row */}
+        {/* Charts */}
         <div className="grid lg:grid-cols-2 gap-5">
-          {/* Performance Trend */}
-          <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-            <h3 className="text-sm font-semibold text-slate-200 mb-4">Performance Trend (Last 6 Games)</h3>
-            <ResponsiveContainer width="100%" height={200}>
+          {/* Trend */}
+          <div className="border rounded p-5" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--faint)' }}>
+              Last 6 Games
+            </p>
+            <ResponsiveContainer width="100%" height={195}>
               <LineChart data={performanceTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a2035" />
-                <XAxis dataKey="game" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={{ background: '#0d1017', border: '1px solid #1a2035', borderRadius: 8, fontSize: 12 }}
-                  labelStyle={{ color: '#94a3b8' }}
-                />
-                <Line type="monotone" dataKey="pts" stroke={player.accentColor} strokeWidth={2} dot={{ fill: player.accentColor, r: 3 }} name="PTS" />
-                <Line type="monotone" dataKey="reb" stroke="#6366f1" strokeWidth={2} dot={{ fill: '#6366f1', r: 3 }} name="REB" />
-                <Line type="monotone" dataKey="ast" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981', r: 3 }} name="AST" />
+                <CartesianGrid strokeDasharray="2 4" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="game" tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--faint)' }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12, color: 'var(--text)' }} />
+                <Line type="monotone" dataKey="pts" stroke={isHome ? 'var(--text)' : 'var(--amber)'} strokeWidth={2} dot={{ r: 3 }} name="PTS" />
+                <Line type="monotone" dataKey="reb" stroke="#6366f1" strokeWidth={1.5} dot={{ r: 2 }} name="REB" strokeDasharray="4 2" />
+                <Line type="monotone" dataKey="ast" stroke="var(--green)" strokeWidth={1.5} dot={{ r: 2 }} name="AST" strokeDasharray="4 2" />
               </LineChart>
             </ResponsiveContainer>
-            <div className="flex gap-4 mt-2 justify-center">
-              {[{ c: player.accentColor, l: 'PTS' }, { c: '#6366f1', l: 'REB' }, { c: '#10b981', l: 'AST' }].map(i => (
+            <div className="flex gap-4 mt-2">
+              {[
+                { c: isHome ? 'var(--text)' : 'var(--amber)', l: 'PTS' },
+                { c: '#6366f1', l: 'REB' },
+                { c: 'var(--green)', l: 'AST' },
+              ].map(i => (
                 <div key={i.l} className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full" style={{ background: i.c }} />
-                  <span className="text-xs text-slate-500">{i.l}</span>
+                  <div className="w-2 h-0.5 rounded" style={{ background: i.c }} />
+                  <span className="text-[11px]" style={{ color: 'var(--faint)' }}>{i.l}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Shot Zone */}
-          <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-            <h3 className="text-sm font-semibold text-slate-200 mb-4">Shot Zone Efficiency</h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={shotZoneData} layout="vertical" barSize={12}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a2035" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} unit="%" domain={[0, 80]} />
-                <YAxis dataKey="zone" type="category" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} width={75} />
-                <Tooltip
-                  contentStyle={{ background: '#0d1017', border: '1px solid #1a2035', borderRadius: 8, fontSize: 12 }}
-                  formatter={(val) => [`${val}%`, 'FG%']}
-                  labelStyle={{ color: '#94a3b8' }}
-                />
-                <Bar dataKey="pct" radius={[0, 3, 3, 0]} name="FG%">
+          {/* Shot zones */}
+          <div className="border rounded p-5" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+            <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--faint)' }}>
+              Shot Zone FG%
+            </p>
+            <ResponsiveContainer width="100%" height={195}>
+              <BarChart data={shotZoneData} layout="vertical" barSize={11}>
+                <CartesianGrid strokeDasharray="2 4" stroke="var(--border)" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--faint)' }} axisLine={false} tickLine={false} unit="%" domain={[0, 80]} />
+                <YAxis dataKey="zone" type="category" tick={{ fontSize: 10, fill: 'var(--faint)' }} axisLine={false} tickLine={false} width={75} />
+                <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12, color: 'var(--text)' }} formatter={(val) => [`${val}%`, 'FG%']} />
+                <Bar dataKey="pct" radius={[0, 2, 2, 0]} name="FG%">
                   {shotZoneData.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={entry.pct >= 50 ? '#10b981' : entry.pct >= 40 ? '#f59e0b' : '#ef4444'}
-                    />
+                    <Cell key={i} fill={entry.pct >= 50 ? 'var(--green)' : entry.pct >= 40 ? 'var(--amber)' : 'var(--red)'} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-            <div className="flex gap-4 mt-2 justify-center">
-              {[{ c: '#10b981', l: '≥50%' }, { c: '#f59e0b', l: '40-49%' }, { c: '#ef4444', l: '<40%' }].map(i => (
+            <div className="flex gap-4 mt-2">
+              {[{ c: 'var(--green)', l: '≥50%' }, { c: 'var(--amber)', l: '40–49%' }, { c: 'var(--red)', l: '<40%' }].map(i => (
                 <div key={i.l} className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full" style={{ background: i.c }} />
-                  <span className="text-xs text-slate-500">{i.l}</span>
+                  <div className="w-2 h-2 rounded-sm" style={{ background: i.c }} />
+                  <span className="text-[11px]" style={{ color: 'var(--faint)' }}>{i.l}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Tendencies + Strengths/Weaknesses */}
+        {/* Tendencies / Strengths / Weaknesses */}
         <div className="grid lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-1 bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Target size={14} className="text-blue-400" />
-              <h3 className="text-sm font-semibold text-slate-200">Tendencies</h3>
+          {[
+            { title: 'Tendencies', items: player.tendencies, accent: 'var(--amber)' },
+            { title: 'Strengths', items: player.strengths, accent: 'var(--green)' },
+            { title: 'Weaknesses', items: player.weaknesses, accent: 'var(--red)' },
+          ].map(section => (
+            <div key={section.title} className="border rounded p-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+              <p className="text-[9px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--faint)' }}>{section.title}</p>
+              <ul className="flex flex-col gap-2.5">
+                {section.items.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5">
+                    <span className="text-[10px] font-black mt-0.5 flex-shrink-0" style={{ color: section.accent }}>
+                      {section.title === 'Tendencies' ? `${i + 1}.` : '—'}
+                    </span>
+                    <span className="text-[12px] leading-relaxed" style={{ color: 'var(--muted)' }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="flex flex-col gap-2.5">
-              {player.tendencies.map((t, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
-                  <span className="text-xs text-slate-400 leading-relaxed">{t}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap size={14} className="text-emerald-400" />
-              <h3 className="text-sm font-semibold text-slate-200">Strengths</h3>
-            </div>
-            <ul className="flex flex-col gap-2">
-              {player.strengths.map((s, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                  <span className="text-xs text-slate-400">{s}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Shield size={14} className="text-red-400" />
-              <h3 className="text-sm font-semibold text-slate-200">Weaknesses</h3>
-            </div>
-            <ul className="flex flex-col gap-2">
-              {player.weaknesses.map((w, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
-                  <span className="text-xs text-slate-400">{w}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          ))}
         </div>
 
         {/* Game Log */}
-        <div className="bg-[#0d1017] border border-[#1a2035] rounded-2xl overflow-hidden">
-          <div className="px-5 py-3 border-b border-[#1a2035]">
-            <h3 className="text-sm font-semibold text-slate-200">Recent Game Log</h3>
+        <div className="border rounded overflow-hidden" style={{ borderColor: 'var(--border)' }}>
+          <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border)', background: 'var(--surface2)' }}>
+            <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: 'var(--faint)' }}>Game Log</p>
           </div>
-          <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full text-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full">
               <thead>
-                <tr className="border-b border-[#1a2035]">
-                  {['Date', 'OPP', 'MIN', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'FG', '3P', 'FT', '+/-'].map(h => (
-                    <th key={h} className="px-4 py-2.5 text-left font-medium text-slate-600 whitespace-nowrap">{h}</th>
+                <tr className="border-b" style={{ borderColor: 'var(--border)' }}>
+                  {['Date', 'OPP', 'MIN', 'PTS', 'REB', 'AST', 'STL', 'BLK', 'FG', '3PT', 'FT', '+/-'].map(h => (
+                    <th key={h} className="px-4 py-2.5 text-left text-[9px] font-bold tracking-widest uppercase whitespace-nowrap" style={{ color: 'var(--faint)', background: 'var(--surface)' }}>
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {player.gameLog.map((game, i) => (
-                  <tr key={i} className="border-b border-[#1a2035]/50 hover:bg-[#141929] transition-colors">
-                    <td className="px-4 py-3 text-slate-400 whitespace-nowrap">{game.date}</td>
-                    <td className="px-4 py-3 font-semibold text-slate-300 whitespace-nowrap">{game.opponent}</td>
-                    <td className="px-4 py-3 text-slate-400">{game.min}</td>
-                    <td className="px-4 py-3 font-bold text-slate-100">{game.pts}</td>
-                    <td className="px-4 py-3 text-slate-300">{game.reb}</td>
-                    <td className="px-4 py-3 text-slate-300">{game.ast}</td>
-                    <td className="px-4 py-3 text-slate-400">{game.stl}</td>
-                    <td className="px-4 py-3 text-slate-400">{game.blk}</td>
-                    <td className="px-4 py-3 text-slate-400">{game.fg}</td>
-                    <td className="px-4 py-3 text-slate-400">{game.fg3}</td>
-                    <td className="px-4 py-3 text-slate-400">{game.ft}</td>
-                    <td className={clsx('px-4 py-3 font-semibold', game.plusMinus > 0 ? 'text-emerald-400' : game.plusMinus < 0 ? 'text-red-400' : 'text-slate-500')}>
+                  <tr
+                    key={i}
+                    className="border-b"
+                    style={{ borderColor: 'var(--border)', background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)' }}
+                  >
+                    <td className="px-4 py-3 text-[11px] whitespace-nowrap tabular" style={{ color: 'var(--faint)' }}>{game.date}</td>
+                    <td className="px-4 py-3 text-xs font-bold whitespace-nowrap" style={{ color: 'var(--text)' }}>{game.opponent}</td>
+                    <td className="px-4 py-3 text-xs tabular" style={{ color: 'var(--faint)' }}>{game.min}</td>
+                    <td className="px-4 py-3 text-sm font-black tabular" style={{ color: 'var(--text)' }}>{game.pts}</td>
+                    <td className="px-4 py-3 text-xs font-semibold tabular" style={{ color: 'var(--muted)' }}>{game.reb}</td>
+                    <td className="px-4 py-3 text-xs font-semibold tabular" style={{ color: 'var(--muted)' }}>{game.ast}</td>
+                    <td className="px-4 py-3 text-xs tabular" style={{ color: 'var(--faint)' }}>{game.stl}</td>
+                    <td className="px-4 py-3 text-xs tabular" style={{ color: 'var(--faint)' }}>{game.blk}</td>
+                    <td className="px-4 py-3 text-xs tabular" style={{ color: 'var(--faint)' }}>{game.fg}</td>
+                    <td className="px-4 py-3 text-xs tabular" style={{ color: 'var(--faint)' }}>{game.fg3}</td>
+                    <td className="px-4 py-3 text-xs tabular" style={{ color: 'var(--faint)' }}>{game.ft}</td>
+                    <td
+                      className="px-4 py-3 text-xs font-black tabular"
+                      style={{ color: game.plusMinus > 0 ? 'var(--green)' : game.plusMinus < 0 ? 'var(--red)' : 'var(--faint)' }}
+                    >
                       {game.plusMinus > 0 ? '+' : ''}{game.plusMinus}
                     </td>
                   </tr>

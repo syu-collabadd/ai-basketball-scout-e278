@@ -1,66 +1,81 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, Users, FileText, Zap } from 'lucide-react';
 import clsx from 'clsx';
 
 const navItems = [
-  { to: '/', icon: BarChart3, label: 'Dashboard' },
-  { to: '/players', icon: Users, label: 'Players' },
-  { to: '/report', icon: FileText, label: 'Scout Report' },
+  { to: '/', label: 'Dashboard', short: 'DB' },
+  { to: '/players', label: 'Players', short: 'PL' },
+  { to: '/report', label: 'Scout Report', short: 'SR' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   return (
-    <div className="flex h-screen bg-[#0a0c10] overflow-hidden">
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg)' }}>
       {/* Sidebar */}
-      <aside className="w-16 lg:w-56 flex flex-col bg-[#0d1017] border-r border-[#1a2035] flex-shrink-0">
+      <aside
+        className="w-14 lg:w-52 flex flex-col flex-shrink-0 border-r"
+        style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+      >
         {/* Logo */}
-        <div className="flex items-center gap-2 px-3 lg:px-4 h-14 border-b border-[#1a2035]">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
-            <Zap size={16} className="text-white" />
-          </div>
-          <span className="hidden lg:block text-white font-semibold text-sm tracking-wide">ScoutAI</span>
+        <div
+          className="flex items-center gap-3 px-4 h-14 border-b"
+          style={{ borderColor: 'var(--border)' }}
+        >
+          <span
+            className="text-xs font-black tracking-widest"
+            style={{ color: 'var(--amber)', letterSpacing: '0.15em' }}
+          >
+            SCOUT
+          </span>
+          <span
+            className="hidden lg:block text-xs font-black tracking-widest"
+            style={{ color: 'var(--faint)', letterSpacing: '0.15em' }}
+          >
+            AI
+          </span>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-4 flex flex-col gap-1 px-2">
-          {navItems.map(({ to, icon: Icon, label }) => {
+        <nav className="flex-1 py-3 flex flex-col px-2 gap-0.5">
+          {navItems.map(({ to, label, short }) => {
             const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
             return (
               <Link
                 key={to}
                 to={to}
                 className={clsx(
-                  'flex items-center gap-3 px-2 lg:px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                  'flex items-center gap-3 px-3 py-2.5 rounded text-xs font-semibold tracking-wide transition-colors duration-100',
                   active
-                    ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20'
-                    : 'text-slate-500 hover:text-slate-300 hover:bg-[#141929]'
+                    ? 'text-white'
+                    : 'hover:text-white'
                 )}
+                style={{
+                  background: active ? 'var(--surface2)' : 'transparent',
+                  color: active ? 'var(--text)' : 'var(--faint)',
+                  borderLeft: active ? '2px solid var(--amber)' : '2px solid transparent',
+                }}
               >
-                <Icon size={18} className="flex-shrink-0" />
+                <span className="lg:hidden text-[10px] font-black tracking-widest" style={{ color: active ? 'var(--amber)' : 'inherit' }}>{short}</span>
                 <span className="hidden lg:block">{label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="px-2 lg:px-3 py-4 border-t border-[#1a2035]">
-          <div className="flex items-center gap-2 px-2 py-2">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center flex-shrink-0">
-              <span className="text-[10px] font-bold text-slate-300">CM</span>
-            </div>
-            <div className="hidden lg:block">
-              <p className="text-xs font-medium text-slate-300 leading-none">Coach Mike</p>
-              <p className="text-[10px] text-slate-500 mt-0.5">Head Coach</p>
-            </div>
-          </div>
+        {/* Season label */}
+        <div
+          className="px-4 py-4 border-t"
+          style={{ borderColor: 'var(--border)' }}
+        >
+          <p className="hidden lg:block text-[10px] font-semibold tracking-widest" style={{ color: 'var(--faint)' }}>
+            SEASON 2025–26
+          </p>
         </div>
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto scrollbar-thin">
+      <main className="flex-1 overflow-y-auto">
         {children}
       </main>
     </div>

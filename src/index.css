@@ -2,18 +2,29 @@
 
 :root {
   color-scheme: dark;
+  --bg:       #0c0d0f;
+  --surface:  #111318;
+  --surface2: #181b22;
+  --border:   #1f2330;
+  --border2:  #2a2f3d;
+  --text:     #e8eaf0;
+  --muted:    #9098a9;
+  --faint:    #454e61;
+  --amber:    #d4933c;
+  --amber-dim:#3d2a12;
+  --green:    #22c55e;
+  --red:      #ef4444;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: #0a0c10;
-  color: #e2e8f0;
+  background: var(--bg);
+  color: var(--text);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 1, "ss01" 1;
 }
 
 #root {
@@ -21,32 +32,18 @@ body {
   min-height: 100svh;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #2d3748;
-  border-radius: 2px;
-}
+/* Tabular figures for numbers */
+.tabular { font-feature-settings: "tnum" 1; }
 
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.shimmer {
-  background: linear-gradient(90deg, #1a1f2e 25%, #1e2535 50%, #1a1f2e 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+/* Recharts tooltip override */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+  font-size: 12px !important;
 }
